@@ -4,6 +4,7 @@
     <TargetFramework>net8.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
+    <UserSecretsId>f16acf28-0772-48b4-becd-fb2a8fd0f1a9</UserSecretsId>
   </PropertyGroup>
 
   <ItemGroup>
@@ -34,6 +35,11 @@
     <None Include="wwwroot\lib\jquery\jquery.slim.js" />
     <None Include="wwwroot\lib\jquery\jquery.slim.min.js" />
     <None Include="wwwroot\lib\jquery\jquery.slim.min.map" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="8.0.0" />
+    <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL.Design" Version="1.1.0" />
   </ItemGroup>
 
 </Project>
