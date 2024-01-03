@@ -4,4 +4,22 @@
     ViewData["Title"] = "Home page";
 }
 
-Hello
+<div class="table-responsive">
+    <table class="table table-striped recipe">
+        <thead>
+            <tr>
+                <th>Recipe</th>
+                <th>TimeToCook</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var recipe in Model.Recipes)
+            {
+                <tr>
+                    <td class="align-middle">@recipe.Name</td>
+                    <td class="align-middle">@recipe.TimeToCook</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
