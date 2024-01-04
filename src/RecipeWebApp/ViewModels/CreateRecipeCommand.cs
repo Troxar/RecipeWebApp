@@ -21,5 +21,7 @@ namespace RecipeWebApp.ViewModels
 
         [DisplayName("Vegan?")]
         public bool IsVegan { get; set; }
+
+        public IList<CreateIngredientCommand> Ingredients { get; set; } = new List<CreateIngredientCommand>();
     }
 }

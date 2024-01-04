@@ -60,7 +60,44 @@
     </div>
 
     <div class="form-group">
+        <table class="table table-striped" id="ingredients">
+            <thead>
+                <tr>
+                    <th>Ingredient</th>
+                    <th>Quantity</th>
+                    <th>Unit</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @for (int i = 0; i < Model.Input.Ingredients.Count; i++)
+                {
+                    var ingredient = Model.Input.Ingredients[i];
+                    <tr>
+                        <td>
+                            <input asp-for="Input.Ingredients[i].Name" />
+                            <span asp-validation-for="Input.Ingredients[i].Name" class="text-danger"></span>
+                        </td>
+                        <td>
+                            <input asp-for="Input.Ingredients[i].Quantity" />
+                            <span asp-validation-for="Input.Ingredients[i].Quantity" class=" text-danger"></span>
+                        </td>
+                        <td>
+                            <input asp-for="Input.Ingredients[i].Unit" />
+                            <span asp-validation-for="Input.Ingredients[i].Unit" class=" text-danger"></span>
+                        </td>
+                        <td>
+                            <button class="btn btn-danger remove">Remove</button>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+    <div class="form-group">
         <div class="col-md-offset-2 col-md-10">
+            <button type="button" class="btn btn-success" id="addIngredient">Add ingredient</button>
             <button type="submit" class="btn btn-primary">Create</button>
         </div>
     </div>
@@ -68,4 +105,22 @@
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
+    <script>
+        var ingredients = $('#ingredients tbody');
+        $("#addIngredient").click(function () {
+            var rowNo = ingredients.find('tr').length;
+            var template =
+                '<tr>' +
+                '<td><input name="Input.Ingredients[' + rowNo + '].Name" id="Ingredients_' + rowNo + '_Name" /></td>' +
+                '<td><input name="Input.Ingredients[' + rowNo + '].Quantity" id="Ingredients_' + rowNo + 'Quantity" /></td>' +
+                '<td><input name="Input.Ingredients[' + rowNo + '].Unit" id="Ingredients_' + rowNo + 'Unit" /></td>' +
+                '<td><button class="btn btn-danger remove">Remove</button></td>' +
+                '</tr>';
+            ingredients.append(template);
+        });
+
+        ingredients.on('click', '.remove', function (e) {
+            $(this).closest('tr').remove();
+        });
+    </script>
 }
