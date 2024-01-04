@@ -1,0 +1,71 @@
+﻿@page
+@model Recipes.CreateModel
+@{
+    ViewData["Title"] = "Create Recipe";
+}
+
+<h2>@ViewData["Title"]</h2>
+<hr />
+
+<form method="post" class="form-horizontal">
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+    <div class="form-group">
+        <label asp-for="Input.Name" class="col-md-2 control-label"></label>
+        <div class="col-md-10">
+            <input asp-for="Input.Name" class="form-control" />
+            <span asp-validation-for="Input.Name" class="text-danger"></span>
+        </div>
+    </div>
+    <div class="form-group">
+        <label asp-for="Input.Method" class="col-md-2 control-label"></label>
+        <div class="col-md-10">
+            <textarea asp-for="Input.Method" class="form-control"></textarea>
+            <span asp-validation-for="Input.Method" class="text-danger"></span>
+        </div>
+    </div>
+    <div class="form-group">
+        <label asp-for="Input.TimeToCookHrs" class="col-md-2 control-label"></label>
+        <div class="col-md-10">
+            <input asp-for="Input.TimeToCookHrs" class="form-control" />
+            <span asp-validation-for="Input.TimeToCookHrs" class="text-danger"></span>
+        </div>
+    </div>
+    <div class="form-group">
+        <label asp-for="Input.TimeToCookMins" class="col-md-2 control-label"></label>
+        <div class="col-md-10">
+            <input asp-for="Input.TimeToCookMins" class="form-control" />
+            <span asp-validation-for="Input.TimeToCookMins" class="text-danger"></span>
+        </div>
+    </div>
+    <div class="form-group">
+        <div class="col-sm-offset-2 col-sm-10">
+            <div class="checkbox">
+                <label class="control-label">
+                    <input asp-for="Input.IsVegetarian" /> Vegetarian?
+                    <span asp-validation-for="Input.IsVegetarian" class="text-danger"></span>
+                </label>
+            </div>
+        </div>
+    </div>
+    <div class="form-group">
+        <div class="col-sm-offset-2 col-sm-10">
+            <div class="checkbox">
+                <label class="control-label">
+                    <input asp-for="Input.IsVegan" /> Vegan?
+                    <span asp-validation-for="Input.IsVegan" class="text-danger"></span>
+                </label>
+            </div>
+        </div>
+    </div>
+
+    <div class="form-group">
+        <div class="col-md-offset-2 col-md-10">
+            <button type="submit" class="btn btn-primary">Create</button>
+        </div>
+    </div>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
