@@ -1,4 +1,5 @@
-﻿using System.ComponentModel;
+﻿using RecipeWebApp.Entities;
+using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 
 namespace RecipeWebApp.ViewModels
@@ -23,5 +24,20 @@ namespace RecipeWebApp.ViewModels
         public bool IsVegan { get; set; }
 
         public IList<CreateIngredientCommand> Ingredients { get; set; } = new List<CreateIngredientCommand>();
+
+        public Recipe ToRecipe()
+        {
+            return new Recipe
+            {
+                Name = Name,
+                TimeToCook = new TimeSpan(TimeToCookHrs, TimeToCookMins, 0),
+                Method = Method,
+                IsVegetarian = IsVegetarian,
+                IsVegan = IsVegan,
+                Ingredients = Ingredients
+                    .Select(i => i.ToIngredient())
+                    .ToList()
+            };
+        }
     }
 }

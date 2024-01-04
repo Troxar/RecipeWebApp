@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using RecipeWebApp.Entities;
+using System.ComponentModel.DataAnnotations;
 
 namespace RecipeWebApp.ViewModels
 {
@@ -12,5 +13,15 @@ namespace RecipeWebApp.ViewModels
 
         [StringLength(20)]
         public string Unit { get; set; }
+
+        public Ingredient ToIngredient()
+        {
+            return new Ingredient
+            {
+                Name = Name,
+                Quantity = Quantity,
+                Unit = Unit
+            };
+        }
     }
 }

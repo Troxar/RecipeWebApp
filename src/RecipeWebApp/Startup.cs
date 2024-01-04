@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using RecipeWebApp.Infrastructure;
+using RecipeWebApp.Services;
 
 namespace RecipeWebApp
 {
@@ -19,6 +20,9 @@ namespace RecipeWebApp
             {
                 options.UseNpgsql(_configuration.GetConnectionString("DefaultConnection"));
             });
+
+            services.AddScoped<IAppDbContext, AppDbContext>();
+            services.AddScoped<IRecipeService, RecipeService>();
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)

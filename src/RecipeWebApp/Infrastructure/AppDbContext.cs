@@ -3,7 +3,7 @@ using RecipeWebApp.Entities;
 
 namespace RecipeWebApp.Infrastructure
 {
-    public class AppDbContext : DbContext
+    public class AppDbContext : DbContext, IAppDbContext
     {
         public DbSet<Recipe> Recipes { get; set; }
 
