@@ -1,4 +1,5 @@
-﻿using RecipeWebApp.Infrastructure;
+﻿using Microsoft.EntityFrameworkCore;
+using RecipeWebApp.Infrastructure;
 using RecipeWebApp.ViewModels;
 
 namespace RecipeWebApp.Services
@@ -19,6 +20,14 @@ namespace RecipeWebApp.Services
             await _context.SaveChangesAsync();
 
             return recipe.RecipeId;
+        }
+
+        public async Task<IEnumerable<RecipeSummaryViewModel>> GetRecipes()
+        {
+            return await _context.Recipes
+                .Where(r => !r.IsDeleted)
+                .Select(r => RecipeSummaryViewModel.FromRecipe(r))
+                .ToListAsync();
         }
     }
 }
