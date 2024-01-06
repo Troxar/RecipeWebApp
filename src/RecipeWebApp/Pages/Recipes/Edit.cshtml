@@ -1,0 +1,17 @@
+﻿@page "{id}"
+@model Recipes.EditModel
+@{
+    ViewData["Title"] = "Edit Recipe";
+}
+
+<h2>@ViewData["Title"]</h2>
+<hr />
+
+<form method="post" class="form-horizontal">
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+    <partial name="_EditRecipePartial" model="Model.Input" />
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

@@ -31,6 +31,14 @@ namespace RecipeWebApp.Services
                 .SingleOrDefaultAsync();
         }
 
+        public async Task<UpdateRecipeCommand?> GetRecipeForUpdate(int id)
+        {
+            return await _context.Recipes
+                .Where(r => r.RecipeId == id && !r.IsDeleted)
+                .Select(r => new UpdateRecipeCommand(r))
+                .SingleOrDefaultAsync();
+        }
+
         public async Task<IEnumerable<RecipeSummaryViewModel>> GetRecipes()
         {
             return await _context.Recipes

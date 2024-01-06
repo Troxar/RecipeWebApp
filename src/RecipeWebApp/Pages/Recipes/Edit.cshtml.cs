@@ -5,14 +5,15 @@ using RecipeWebApp.ViewModels;
 
 namespace RecipeWebApp.Pages.Recipes
 {
-    public class ViewModel : PageModel
+    public class EditModel : PageModel
     {
         private readonly IRecipeService _service;
-        private readonly ILogger<ViewModel> _logger;
+        private readonly ILogger<EditModel> _logger;
 
-        public RecipeDetailViewModel Recipe { get; set; }
+        [BindProperty]
+        public UpdateRecipeCommand Input { get; set; }
 
-        public ViewModel(IRecipeService service, ILogger<ViewModel> logger)
+        public EditModel(IRecipeService service, ILogger<EditModel> logger)
         {
             _service = service;
             _logger = logger;
@@ -22,7 +23,7 @@ namespace RecipeWebApp.Pages.Recipes
         {
             try
             {
-                Recipe = await _service.GetRecipe(id);
+                Input = await _service.GetRecipeForUpdate(id);
             }
             catch (Exception ex)
             {
@@ -30,7 +31,7 @@ namespace RecipeWebApp.Pages.Recipes
                 return NotFound();
             }
 
-            if (Recipe is null)
+            if (Input is null)
             {
                 _logger.LogWarning("Recipe not found: {id}", id);
                 return NotFound();

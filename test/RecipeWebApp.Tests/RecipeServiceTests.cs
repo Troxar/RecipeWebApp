@@ -9,6 +9,8 @@ namespace RecipeWebApp.Tests
 {
     public class RecipeServiceTests
     {
+        #region CreateRecipe
+
         [Fact]
         public async Task CreateRecipe_ShouldAddRecipeToDatabase()
         {
@@ -44,6 +46,10 @@ namespace RecipeWebApp.Tests
             Assert.Equal(124, result1);
             Assert.Equal(125, result2);
         }
+
+        #endregion
+
+        #region GetRecipes
 
         [Fact]
         public async Task GetRecipes_ShouldNotReturnRecipesIfTheyDoNotExist()
@@ -127,6 +133,10 @@ namespace RecipeWebApp.Tests
             Assert.Empty(result);
         }
 
+        #endregion
+
+        #region GetRecipe
+
         [Fact]
         public async Task GetRecipe_ShouldReturnNullIfRecipeNotFound()
         {
@@ -189,7 +199,7 @@ namespace RecipeWebApp.Tests
             mockDbContext.Setup(c => c.Recipes).ReturnsDbSet(recipes);
 
             var id = 2;
-            var expected = recipes.Where(r => r.RecipeId == id).First();
+            var expected = recipes.Where(r => r.RecipeId == id).Single();
 
             var service = new RecipeService(mockDbContext.Object);
             var result = await service.GetRecipe(id);
@@ -206,5 +216,88 @@ namespace RecipeWebApp.Tests
                 Assert.Contains(result.Ingredients, i => i.Name == ingredient.Name);
             }
         }
+
+        #endregion
+
+        #region GetRecipeForUpdate
+
+        [Fact]
+        public async Task GetRecipeForUpdate_ShouldReturnNullIfRecipeNotFound()
+        {
+            var recipes = new List<Recipe>()
+            {
+                new Recipe { RecipeId = 1, Name = "Recipe 1" }
+            };
+            var mockDbContext = new Mock<IAppDbContext>();
+            mockDbContext.Setup(c => c.Recipes).ReturnsDbSet(recipes);
+
+            var id = 2;
+            var service = new RecipeService(mockDbContext.Object);
+            var result = await service.GetRecipeForUpdate(id);
+
+            Assert.Null(result);
+        }
+
+        [Fact]
+        public async Task GetRecipeForUpdate_ShouldThrowExceptionIfThereAreSeveralRecipesWithSameId()
+        {
+            var recipes = new List<Recipe>()
+            {
+                new Recipe { RecipeId = 1, Name = "Recipe 1" },
+                new Recipe { RecipeId = 1, Name = "Recipe 2" }
+            };
+            var mockDbContext = new Mock<IAppDbContext>();
+            mockDbContext.Setup(c => c.Recipes).ReturnsDbSet(recipes);
+
+            var id = 1;
+            var service = new RecipeService(mockDbContext.Object);
+
+            await Assert.ThrowsAsync<InvalidOperationException>(async () => await service.GetRecipeForUpdate(id));
+        }
+
+        [Fact]
+        public async Task GetRecipeForUpdate_ShouldReturnExpectedRecipe()
+        {
+            var recipes = new List<Recipe>()
+            {
+                new Recipe { RecipeId = 1, Name = "Recipe 1" },
+                new Recipe { RecipeId = 2, Name = "Recipe 2" },
+                new Recipe { RecipeId = 3, Name = "Recipe 3" }
+            };
+            var mockDbContext = new Mock<IAppDbContext>();
+            mockDbContext.Setup(c => c.Recipes).ReturnsDbSet(recipes);
+
+            var id = 2;
+            var expected = recipes.Where(r => r.RecipeId == id).Single();
+
+            var service = new RecipeService(mockDbContext.Object);
+            var result = await service.GetRecipeForUpdate(id);
+
+            Assert.NotNull(result);
+            Assert.Equal(expected.RecipeId, result.RecipeId);
+            Assert.Equal(expected.Name, result.Name);
+        }
+
+
+        [Fact]
+        public async Task GetRecipeForUpdate_ShouldReturnNullIfRecipeIsDeleted()
+        {
+            var recipes = new List<Recipe>
+            {
+                new Recipe { RecipeId = 1, Name = "Recipe 1" },
+                new Recipe { RecipeId = 2, Name = "Recipe 2", IsDeleted = true },
+                new Recipe { RecipeId = 3, Name = "Recipe 3" }
+            };
+            var mockDbContext = new Mock<IAppDbContext>();
+            mockDbContext.Setup(c => c.Recipes).ReturnsDbSet(recipes);
+
+            var id = 2;
+            var service = new RecipeService(mockDbContext.Object);
+            var result = await service.GetRecipeForUpdate(id);
+
+            Assert.Null(result);
+        }
+
+        #endregion
     }
 }

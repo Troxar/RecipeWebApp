@@ -9,6 +9,6 @@
         public string Method { get; set; }
         public bool IsVegetarian { get; set; }
         public bool IsVegan { get; set; }
-        public ICollection<Ingredient> Ingredients { get; set; }
+        public ICollection<Ingredient> Ingredients { get; set; } = Array.Empty<Ingredient>();
     }
 }

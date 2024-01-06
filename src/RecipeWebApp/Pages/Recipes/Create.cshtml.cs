@@ -24,7 +24,7 @@ namespace RecipeWebApp.Pages.Recipes
             Input = new CreateRecipeCommand();
         }
 
-        public async Task<IActionResult> OnPost()
+        public async Task<IActionResult> OnPostAsync()
         {
             try
             {
