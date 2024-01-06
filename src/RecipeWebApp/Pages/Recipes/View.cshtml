@@ -1,0 +1,16 @@
+﻿@page "{id}"
+@model Recipes.ViewModel
+@{
+    ViewData["Title"] = Model.Recipe.Name;
+}
+
+<h2>@Model.Recipe.Name</h2>
+<p>@Model.Recipe.Method</p>
+
+<dl>
+    @foreach (var item in Model.Recipe.Ingredients)
+    {
+        <dt>@item.Name</dt>
+        <dd>@item.Quantity</dd>
+    }
+</dl>

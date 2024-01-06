@@ -6,5 +6,6 @@ namespace RecipeWebApp.Services
     {
         Task<int> CreateRecipe(CreateRecipeCommand cmd);
         Task<IEnumerable<RecipeSummaryViewModel>> GetRecipes();
+        Task<RecipeDetailViewModel?> GetRecipe(int id);
     }
 }

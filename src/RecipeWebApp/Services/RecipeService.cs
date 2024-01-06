@@ -22,6 +22,15 @@ namespace RecipeWebApp.Services
             return recipe.RecipeId;
         }
 
+        public async Task<RecipeDetailViewModel?> GetRecipe(int id)
+        {
+            return await _context.Recipes
+                .Where(r => r.RecipeId == id && !r.IsDeleted)
+                .Include(r => r.Ingredients)
+                .Select(r => RecipeDetailViewModel.FromRecipe(r))
+                .SingleOrDefaultAsync();
+        }
+
         public async Task<IEnumerable<RecipeSummaryViewModel>> GetRecipes()
         {
             return await _context.Recipes

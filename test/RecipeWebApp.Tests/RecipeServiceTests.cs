@@ -126,5 +126,85 @@ namespace RecipeWebApp.Tests
             Assert.NotNull(result);
             Assert.Empty(result);
         }
+
+        [Fact]
+        public async Task GetRecipe_ShouldReturnNullIfRecipeNotFound()
+        {
+            var recipes = new List<Recipe>()
+            {
+                new Recipe { RecipeId = 1, Name = "Recipe 1" }
+            };
+            var mockDbContext = new Mock<IAppDbContext>();
+            mockDbContext.Setup(c => c.Recipes).ReturnsDbSet(recipes);
+
+            var id = 2;
+            var service = new RecipeService(mockDbContext.Object);
+            var result = await service.GetRecipe(id);
+
+            Assert.Null(result);
+        }
+
+        [Fact]
+        public async Task GetRecipe_ShouldThrowExceptionIfThereAreSeveralRecipesWithSameId()
+        {
+            var recipes = new List<Recipe>()
+            {
+                new Recipe { RecipeId = 1, Name = "Recipe 1", Ingredients = Array.Empty<Ingredient>() },
+                new Recipe { RecipeId = 1, Name = "Recipe 2", Ingredients = Array.Empty<Ingredient>() }
+            };
+            var mockDbContext = new Mock<IAppDbContext>();
+            mockDbContext.Setup(c => c.Recipes).ReturnsDbSet(recipes);
+
+            var id = 1;
+            var service = new RecipeService(mockDbContext.Object);
+
+            await Assert.ThrowsAsync<InvalidOperationException>(async () => await service.GetRecipe(id));
+        }
+
+        [Fact]
+        public async Task GetRecipe_ShouldReturnRecipeWithIngredients()
+        {
+            var recipes = new List<Recipe>()
+            {
+                new Recipe { RecipeId = 1, Name = "Recipe 1", Ingredients = new []
+                    {
+                        new Ingredient { Name = "11" },
+                        new Ingredient { Name = "12" },
+                    }
+                },
+                new Recipe { RecipeId = 2, Name = "Recipe 2", Ingredients = new []
+                    {
+                        new Ingredient { Name = "21" },
+                        new Ingredient { Name = "22" },
+                    }
+                },
+                new Recipe { RecipeId = 3, Name = "Recipe 3", Ingredients = new []
+                    {
+                        new Ingredient { Name = "31" },
+                        new Ingredient { Name = "32" },
+                    }
+                },
+            };
+            var mockDbContext = new Mock<IAppDbContext>();
+            mockDbContext.Setup(c => c.Recipes).ReturnsDbSet(recipes);
+
+            var id = 2;
+            var expected = recipes.Where(r => r.RecipeId == id).First();
+
+            var service = new RecipeService(mockDbContext.Object);
+            var result = await service.GetRecipe(id);
+
+            Assert.NotNull(result);
+            Assert.Equal(expected.RecipeId, result.Id);
+            Assert.Equal(expected.Name, result.Name);
+
+            Assert.NotNull(result.Ingredients);
+            Assert.Equal(expected.Ingredients.Count, result.Ingredients.Count());
+
+            foreach (var ingredient in expected.Ingredients)
+            {
+                Assert.Contains(result.Ingredients, i => i.Name == ingredient.Name);
+            }
+        }
     }
 }
