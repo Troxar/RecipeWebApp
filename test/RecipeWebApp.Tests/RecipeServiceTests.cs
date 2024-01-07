@@ -299,5 +299,68 @@ namespace RecipeWebApp.Tests
         }
 
         #endregion
+
+        #region UpdateRecipe
+
+        [Fact]
+        public async Task UpdateRecipe_ShouldThrowExceptionIfRecipeNotFound()
+        {
+            var recipes = new List<Recipe>
+            {
+                new Recipe { RecipeId = 1, Name = "Recipe 1" }
+            };
+            var mockDbContext = new Mock<IAppDbContext>();
+            mockDbContext.Setup(c => c.Recipes).ReturnsDbSet(recipes);
+
+            var cmd = new UpdateRecipeCommand { RecipeId = 2 };
+            var service = new RecipeService(mockDbContext.Object);
+
+            await Assert.ThrowsAsync<InvalidOperationException>(async () => await service.UpdateRecipe(cmd));
+        }
+
+        [Fact]
+        public async Task UpdateRecipe_ShouldThrowExceptionIfRecipeIsDeleted()
+        {
+            var recipes = new List<Recipe>
+            {
+                new Recipe { RecipeId = 1, Name = "Recipe 1" },
+                new Recipe { RecipeId = 2, Name = "Recipe 2", IsDeleted = true },
+                new Recipe { RecipeId = 3, Name = "Recipe 3" }
+            };
+            var mockDbContext = new Mock<IAppDbContext>();
+            mockDbContext.Setup(c => c.Recipes).ReturnsDbSet(recipes);
+
+            var cmd = new UpdateRecipeCommand { RecipeId = 2 };
+            var service = new RecipeService(mockDbContext.Object);
+
+            await Assert.ThrowsAsync<InvalidOperationException>(async () => await service.UpdateRecipe(cmd));
+        }
+
+        [Fact]
+        public async Task UpdateRecipe_ShouldUpdateRecipe()
+        {
+            var recipes = new List<Recipe>
+            {
+                new Recipe { RecipeId = 1, Name = "Recipe 1" },
+                new Recipe { RecipeId = 2, Name = "Recipe 2" },
+                new Recipe { RecipeId = 3, Name = "Recipe 3" }
+            };
+            var mockDbContext = new Mock<IAppDbContext>();
+            mockDbContext.Setup(c => c.Recipes).ReturnsDbSet(recipes);
+            mockDbContext.Setup(c => c.Recipes.FindAsync(It.IsAny<object[]>()))
+                .ReturnsAsync((object[] id) => recipes.Single(r => r.RecipeId == (int)id[0]));
+
+            var cmd = new UpdateRecipeCommand { RecipeId = 2, Name = "New name", IsVegan = true };
+            var service = new RecipeService(mockDbContext.Object);
+            await service.UpdateRecipe(cmd);
+            var result = mockDbContext.Object.Recipes.Single(r => r.RecipeId == cmd.RecipeId);
+
+            Assert.NotNull(result);
+            Assert.Equal(result.RecipeId, cmd.RecipeId);
+            Assert.Equal(result.Name, cmd.Name);
+            Assert.Equal(result.IsVegan, cmd.IsVegan);
+        }
+
+        #endregion
     }
 }

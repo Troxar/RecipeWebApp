@@ -39,5 +39,26 @@ namespace RecipeWebApp.Pages.Recipes
 
             return Page();
         }
+
+        public async Task<IActionResult> OnPostAsync(int id)
+        {
+            Input.RecipeId = id;
+
+            try
+            {
+                if (ModelState.IsValid)
+                {
+                    await _service.UpdateRecipe(Input);
+                    return RedirectToPage("View", new { id = Input.RecipeId });
+                }
+            }
+            catch (Exception ex)
+            {
+                ModelState.AddModelError(string.Empty, "Failed to update recipe");
+                _logger.LogError(ex, "Failed to update recipe: {id}", Input.RecipeId);
+            }
+
+            return Page();
+        }
     }
 }

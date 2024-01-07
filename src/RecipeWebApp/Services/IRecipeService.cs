@@ -8,5 +8,6 @@ namespace RecipeWebApp.Services
         Task<IEnumerable<RecipeSummaryViewModel>> GetRecipes();
         Task<RecipeDetailViewModel?> GetRecipe(int id);
         Task<UpdateRecipeCommand?> GetRecipeForUpdate(int id);
+        Task UpdateRecipe(UpdateRecipeCommand cmd);
     }
 }

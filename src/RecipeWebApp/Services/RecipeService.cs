@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using RecipeWebApp.Entities;
 using RecipeWebApp.Infrastructure;
 using RecipeWebApp.ViewModels;
 
@@ -45,6 +46,33 @@ namespace RecipeWebApp.Services
                 .Where(r => !r.IsDeleted)
                 .Select(r => RecipeSummaryViewModel.FromRecipe(r))
                 .ToListAsync();
+        }
+
+        public async Task UpdateRecipe(UpdateRecipeCommand cmd)
+        {
+            var recipe = await _context.Recipes.FindAsync(cmd.RecipeId);
+            if (recipe is null)
+            {
+                throw new InvalidOperationException($"Unable to find the recipe: {cmd.RecipeId}");
+            }
+
+            if (recipe.IsDeleted)
+            {
+                throw new InvalidOperationException($"Unable to update a deleted recipe: {cmd.RecipeId}");
+            }
+
+            UpdateRecipe(recipe, cmd);
+            await _context.SaveChangesAsync();
+        }
+
+        static void UpdateRecipe(Recipe recipe, UpdateRecipeCommand cmd)
+        {
+            recipe.RecipeId = cmd.RecipeId;
+            recipe.Name = cmd.Name;
+            recipe.TimeToCook = new TimeSpan(cmd.TimeToCookHrs, cmd.TimeToCookMins, 0);
+            recipe.Method = cmd.Method;
+            recipe.IsVegetarian = cmd.IsVegetarian;
+            recipe.IsVegan = cmd.IsVegan;
         }
     }
 }
