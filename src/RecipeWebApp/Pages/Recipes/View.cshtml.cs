@@ -38,5 +38,20 @@ namespace RecipeWebApp.Pages.Recipes
 
             return Page();
         }
+
+        public async Task<IActionResult> OnPostDeleteAsync(int id)
+        {
+            try
+            {
+                await _service.DeleteRecipe(id);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Failed to delete recipe: {id}", id);
+                return RedirectToPage("/Error");
+            }
+
+            return RedirectToPage("/Index");
+        }
     }
 }

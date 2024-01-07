@@ -356,9 +356,53 @@ namespace RecipeWebApp.Tests
             var result = mockDbContext.Object.Recipes.Single(r => r.RecipeId == cmd.RecipeId);
 
             Assert.NotNull(result);
-            Assert.Equal(result.RecipeId, cmd.RecipeId);
-            Assert.Equal(result.Name, cmd.Name);
-            Assert.Equal(result.IsVegan, cmd.IsVegan);
+            Assert.Equal(cmd.RecipeId, result.RecipeId);
+            Assert.Equal(cmd.Name, result.Name);
+            Assert.Equal(cmd.IsVegan, result.IsVegan);
+        }
+
+        #endregion
+
+        #region DeleteRecipe
+
+        [Fact]
+        public async Task DeleteRecipe_ShouldThrowExceptionIfRecipeNotFound()
+        {
+            var recipes = new List<Recipe>
+            {
+                new Recipe { RecipeId = 1, Name = "Recipe 1" }
+            };
+            var mockDbContext = new Mock<IAppDbContext>();
+            mockDbContext.Setup(c => c.Recipes).ReturnsDbSet(recipes);
+
+            var id = 2;
+            var service = new RecipeService(mockDbContext.Object);
+
+            await Assert.ThrowsAsync<InvalidOperationException>(async () => await service.DeleteRecipe(id));
+        }
+
+        [Fact]
+        public async Task DeleteRecipe_ShouldMarkRecipeAsDeleted()
+        {
+            var recipes = new List<Recipe>
+            {
+                new Recipe { RecipeId = 1, Name = "Recipe 1" },
+                new Recipe { RecipeId = 2, Name = "Recipe 2", IsDeleted = false },
+                new Recipe { RecipeId = 3, Name = "Recipe 3" }
+            };
+            var mockDbContext = new Mock<IAppDbContext>();
+            mockDbContext.Setup(c => c.Recipes).ReturnsDbSet(recipes);
+            mockDbContext.Setup(c => c.Recipes.FindAsync(It.IsAny<object[]>()))
+                .ReturnsAsync((object[] id) => recipes.Single(r => r.RecipeId == (int)id[0]));
+
+            var id = 2;
+            var service = new RecipeService(mockDbContext.Object);
+            await service.DeleteRecipe(id);
+            var result = mockDbContext.Object.Recipes.Single(r => r.RecipeId == id);
+
+            Assert.NotNull(result);
+            Assert.Equal(id, result.RecipeId);
+            Assert.True(result.IsDeleted);
         }
 
         #endregion

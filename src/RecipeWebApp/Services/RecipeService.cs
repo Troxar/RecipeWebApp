@@ -74,5 +74,17 @@ namespace RecipeWebApp.Services
             recipe.IsVegetarian = cmd.IsVegetarian;
             recipe.IsVegan = cmd.IsVegan;
         }
+
+        public async Task DeleteRecipe(int id)
+        {
+            var recipe = await _context.Recipes.FindAsync(id);
+            if (recipe is null)
+            {
+                throw new InvalidOperationException($"Unable to find the recipe: {id}");
+            }
+
+            recipe.IsDeleted = true;
+            await _context.SaveChangesAsync();
+        }
     }
 }

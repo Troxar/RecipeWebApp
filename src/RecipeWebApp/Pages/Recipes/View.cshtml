@@ -1,4 +1,4 @@
-﻿@page "{id}"
+﻿@page "{id}/{handler?}"
 @model Recipes.ViewModel
 @{
     ViewData["Title"] = Model.Recipe.Name;
@@ -8,6 +8,7 @@
 <form asp-page-handler="Delete" asp-route-id="@Model.Recipe.Id">
     <p>
         <a asp-Page="Edit" asp-route-id="@Model.Recipe.Id" class="btn btn-primary">Edit</a>
+        <button class="btn btn-danger">Delete</button>
     </p>
 </form>
 <p>@Model.Recipe.Method</p>

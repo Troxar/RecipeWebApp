@@ -9,5 +9,6 @@ namespace RecipeWebApp.Services
         Task<RecipeDetailViewModel?> GetRecipe(int id);
         Task<UpdateRecipeCommand?> GetRecipeForUpdate(int id);
         Task UpdateRecipe(UpdateRecipeCommand cmd);
+        Task DeleteRecipe(int id);
     }
 }
