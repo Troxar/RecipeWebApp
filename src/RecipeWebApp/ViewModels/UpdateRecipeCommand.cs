@@ -18,5 +18,16 @@ namespace RecipeWebApp.ViewModels
             IsVegetarian = recipe.IsVegetarian;
             IsVegan = recipe.IsVegan;
         }
+
+        public UpdateRecipeCommand(int recipeId, EditRecipeBase editBase)
+        {
+            RecipeId = recipeId;
+            Name = editBase.Name;
+            TimeToCookHrs = editBase.TimeToCookHrs;
+            TimeToCookMins = editBase.TimeToCookMins;
+            Method = editBase.Method;
+            IsVegetarian = editBase.IsVegetarian;
+            IsVegan = editBase.IsVegan;
+        }
     }
 }

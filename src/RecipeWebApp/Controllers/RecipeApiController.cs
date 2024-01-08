@@ -1,6 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using RecipeWebApp.Services;
+using RecipeWebApp.Services.Exceptions;
 using RecipeWebApp.ViewModels;
+using System.Net;
 
 namespace RecipeWebApp.Controllers
 {
@@ -28,7 +30,7 @@ namespace RecipeWebApp.Controllers
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Failed to get recipe: {id}", id);
-                return NotFound($"Failed to get recipe: {id}");
+                return StatusCode((int)HttpStatusCode.InternalServerError, $"Failed to get recipe: {id}");
             }
 
             if (recipe is null)
@@ -37,6 +39,31 @@ namespace RecipeWebApp.Controllers
             }
 
             return Ok(recipe);
+        }
+
+        [HttpPost("{id:required}")]
+        public async Task<IActionResult> Update(int id, EditRecipeBase editBase)
+        {
+            var cmd = new UpdateRecipeCommand(id, editBase);
+
+            try
+            {
+                await _service.UpdateRecipe(cmd);
+            }
+            catch (RecipeException ex)
+            {
+                _logger.LogWarning(ex, "Failed to get recipe for updating: {id}", id);
+                return ex is RecipeNotFoundException
+                        ? NotFound(ex.Message)
+                        : BadRequest(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Failed to update recipe: {id}", id);
+                return StatusCode((int)HttpStatusCode.InternalServerError, $"Failed to update recipe: {id}");
+            }
+
+            return Ok();
         }
     }
 }

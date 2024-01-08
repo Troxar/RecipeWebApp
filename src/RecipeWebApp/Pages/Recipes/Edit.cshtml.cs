@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using RecipeWebApp.Services;
+using RecipeWebApp.Services.Exceptions;
 using RecipeWebApp.ViewModels;
 
 namespace RecipeWebApp.Pages.Recipes
@@ -28,7 +29,7 @@ namespace RecipeWebApp.Pages.Recipes
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Failed to get recipe: {id}", id);
-                return NotFound();
+                return RedirectToPage("/Error");
             }
 
             if (Input is null)
@@ -51,6 +52,11 @@ namespace RecipeWebApp.Pages.Recipes
                     await _service.UpdateRecipe(Input);
                     return RedirectToPage("View", new { id = Input.RecipeId });
                 }
+            }
+            catch (RecipeException ex)
+            {
+                _logger.LogWarning(ex, "Failed to get recipe for updating: {id}", id);
+                return RedirectToPage("/Error");
             }
             catch (Exception ex)
             {

@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using RecipeWebApp.Entities;
 using RecipeWebApp.Infrastructure;
+using RecipeWebApp.Services.Exceptions;
 using RecipeWebApp.ViewModels;
 
 namespace RecipeWebApp.Services
@@ -53,12 +54,12 @@ namespace RecipeWebApp.Services
             var recipe = await _context.Recipes.FindAsync(cmd.RecipeId);
             if (recipe is null)
             {
-                throw new InvalidOperationException($"Unable to find the recipe: {cmd.RecipeId}");
+                throw new RecipeNotFoundException($"Unable to find the recipe: {cmd.RecipeId}");
             }
 
             if (recipe.IsDeleted)
             {
-                throw new InvalidOperationException($"Unable to update a deleted recipe: {cmd.RecipeId}");
+                throw new RecipeIsDeletedException($"Unable to update a deleted recipe: {cmd.RecipeId}");
             }
 
             UpdateRecipe(recipe, cmd);
@@ -80,7 +81,7 @@ namespace RecipeWebApp.Services
             var recipe = await _context.Recipes.FindAsync(id);
             if (recipe is null)
             {
-                throw new InvalidOperationException($"Unable to find the recipe: {id}");
+                throw new RecipeNotFoundException($"Unable to find the recipe: {id}");
             }
 
             recipe.IsDeleted = true;

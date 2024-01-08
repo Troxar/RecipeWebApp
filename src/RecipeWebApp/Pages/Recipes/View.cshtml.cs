@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using RecipeWebApp.Services;
+using RecipeWebApp.Services.Exceptions;
 using RecipeWebApp.ViewModels;
 
 namespace RecipeWebApp.Pages.Recipes
@@ -44,6 +45,11 @@ namespace RecipeWebApp.Pages.Recipes
             try
             {
                 await _service.DeleteRecipe(id);
+            }
+            catch (RecipeException ex)
+            {
+                _logger.LogWarning(ex, "Failed to get recipe for deleting: {id}", id);
+                return RedirectToPage("/Error");
             }
             catch (Exception ex)
             {

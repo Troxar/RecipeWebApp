@@ -3,6 +3,7 @@ using Moq.EntityFrameworkCore;
 using RecipeWebApp.Entities;
 using RecipeWebApp.Infrastructure;
 using RecipeWebApp.Services;
+using RecipeWebApp.Services.Exceptions;
 using RecipeWebApp.ViewModels;
 
 namespace RecipeWebApp.Tests
@@ -315,7 +316,7 @@ namespace RecipeWebApp.Tests
             var cmd = new UpdateRecipeCommand { RecipeId = 2 };
             var service = new RecipeService(mockDbContext.Object);
 
-            await Assert.ThrowsAsync<InvalidOperationException>(async () => await service.UpdateRecipe(cmd));
+            await Assert.ThrowsAsync<RecipeNotFoundException>(async () => await service.UpdateRecipe(cmd));
         }
 
         [Fact]
@@ -329,11 +330,13 @@ namespace RecipeWebApp.Tests
             };
             var mockDbContext = new Mock<IAppDbContext>();
             mockDbContext.Setup(c => c.Recipes).ReturnsDbSet(recipes);
+            mockDbContext.Setup(c => c.Recipes.FindAsync(It.IsAny<object[]>()))
+                .ReturnsAsync((object[] id) => recipes.Single(r => r.RecipeId == (int)id[0]));
 
             var cmd = new UpdateRecipeCommand { RecipeId = 2 };
             var service = new RecipeService(mockDbContext.Object);
 
-            await Assert.ThrowsAsync<InvalidOperationException>(async () => await service.UpdateRecipe(cmd));
+            await Assert.ThrowsAsync<RecipeIsDeletedException>(async () => await service.UpdateRecipe(cmd));
         }
 
         [Fact]
@@ -378,7 +381,7 @@ namespace RecipeWebApp.Tests
             var id = 2;
             var service = new RecipeService(mockDbContext.Object);
 
-            await Assert.ThrowsAsync<InvalidOperationException>(async () => await service.DeleteRecipe(id));
+            await Assert.ThrowsAsync<RecipeNotFoundException>(async () => await service.DeleteRecipe(id));
         }
 
         [Fact]
