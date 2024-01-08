@@ -16,6 +16,9 @@ namespace RecipeWebApp
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddRazorPages();
+            services.AddControllers();
+            services.AddSwaggerGen();
+
             services.AddDbContext<AppDbContext>(options =>
             {
                 options.UseNpgsql(_configuration.GetConnectionString("DefaultConnection"));
@@ -30,6 +33,8 @@ namespace RecipeWebApp
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
+                app.UseSwagger();
+                app.UseSwaggerUI();
             }
             else
             {
@@ -44,6 +49,7 @@ namespace RecipeWebApp
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapRazorPages();
+                endpoints.MapControllers();
             });
         }
     }
