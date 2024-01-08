@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using RecipeWebApp.Filters;
 using RecipeWebApp.Services;
 using RecipeWebApp.Services.Exceptions;
 using RecipeWebApp.ViewModels;
@@ -6,7 +7,9 @@ using System.Net;
 
 namespace RecipeWebApp.Controllers
 {
+    [ApiController]
     [Route("api/recipe")]
+    [RecipeApiEnabled]
     public class RecipeApiController : ControllerBase
     {
         private readonly IRecipeService _service;
@@ -38,7 +41,7 @@ namespace RecipeWebApp.Controllers
                 return BadRequest($"Recipe not found: {id}");
             }
 
-            return Ok(recipe);
+            return new JsonResult(recipe);
         }
 
         [HttpPost("{id:required}")]

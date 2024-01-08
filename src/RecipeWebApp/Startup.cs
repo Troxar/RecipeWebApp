@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using RecipeWebApp.Configs;
 using RecipeWebApp.Infrastructure;
 using RecipeWebApp.Services;
 
@@ -18,6 +19,8 @@ namespace RecipeWebApp
             services.AddRazorPages();
             services.AddControllers();
             services.AddSwaggerGen();
+
+            services.Configure<RecipeApiConfig>(_configuration.GetSection(nameof(RecipeApiConfig)));
 
             services.AddDbContext<AppDbContext>(options =>
             {
