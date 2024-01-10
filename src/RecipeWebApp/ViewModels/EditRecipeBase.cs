@@ -14,7 +14,7 @@ namespace RecipeWebApp.ViewModels
         [Range(0, 59), DisplayName("Time to cook (mins)")]
         public int TimeToCookMins { get; set; }
 
-        public string Method { get; set; }
+        public string Method { get; set; } = string.Empty;
 
         [DisplayName("Vegetarian?")]
         public bool IsVegetarian { get; set; }

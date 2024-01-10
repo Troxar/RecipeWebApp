@@ -1,15 +1,35 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
+using Microsoft.AspNetCore.Mvc.Testing;
+using Microsoft.AspNetCore.TestHost;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Moq;
 using RecipeWebApp.Controllers;
 using RecipeWebApp.Services;
 using RecipeWebApp.Services.Exceptions;
 using RecipeWebApp.ViewModels;
+using System.Net;
 
 namespace RecipeWebApp.Tests
 {
-    public class RecipeApiControllerServiceTests
+    public class RecipeApiControllerServiceTests : IClassFixture<WebApplicationFactory<Startup>>
     {
+        private readonly Mock<IRecipeService> _mockService;
+        private readonly HttpClient _client;
+
+        public RecipeApiControllerServiceTests(WebApplicationFactory<Startup> fixture)
+        {
+            _mockService = new Mock<IRecipeService>();
+            var factory = fixture.WithWebHostBuilder(builder =>
+            {
+                builder.ConfigureTestServices(services =>
+                {
+                    services.RemoveAll<IRecipeService>();
+                    services.AddSingleton(_mockService.Object);
+                });
+            });
+            _client = factory.CreateClient();
+        }
+
         #region Get
 
         [Fact]
@@ -17,8 +37,7 @@ namespace RecipeWebApp.Tests
         {
             var mockService = new Mock<IRecipeService>();
             mockService.Setup(s => s.GetRecipe(It.IsAny<int>())).ReturnsAsync(new RecipeDetailViewModel());
-            var mockLogger = new Mock<ILogger<RecipeApiController>>();
-            var controller = new RecipeApiController(mockService.Object, mockLogger.Object);
+            var controller = new RecipeApiController(mockService.Object);
 
             var result = await controller.Get(1);
 
@@ -26,30 +45,26 @@ namespace RecipeWebApp.Tests
         }
 
         [Fact]
-        public async Task Get_ShouldReturnBadRequestIfRecipeNotFound()
+        public async Task Get_ShouldReturnNotFoundResultIfRecipeDoesNotExist()
         {
             var mockService = new Mock<IRecipeService>();
             mockService.Setup(s => s.GetRecipe(It.IsAny<int>())).ReturnsAsync((RecipeDetailViewModel?)null);
-            var mockLogger = new Mock<ILogger<RecipeApiController>>();
-            var controller = new RecipeApiController(mockService.Object, mockLogger.Object);
+            var controller = new RecipeApiController(mockService.Object);
 
             var result = await controller.Get(1);
 
-            Assert.IsType<BadRequestObjectResult>(result);
+            Assert.IsType<NotFoundResult>(result);
         }
 
         [Fact]
-        public async Task Get_ShouldReturnObjectResult500IfExceptionOccurs()
+        public async Task Get_ShouldReturnHttpMessageWithStatusCode500IfExceptionOccurs()
         {
-            var mockService = new Mock<IRecipeService>();
-            mockService.Setup(s => s.GetRecipe(It.IsAny<int>())).Throws<Exception>();
-            var mockLogger = new Mock<ILogger<RecipeApiController>>();
-            var controller = new RecipeApiController(mockService.Object, mockLogger.Object);
+            _mockService.Setup(m => m.GetRecipe(It.IsAny<int>())).Throws<Exception>();
 
-            var result = await controller.Get(1);
+            var response = await _client.GetAsync("/api/recipe/1");
 
-            Assert.IsType<ObjectResult>(result);
-            Assert.Equal(500, ((ObjectResult)result).StatusCode);
+            Assert.IsType<HttpResponseMessage>(response);
+            Assert.Equal(HttpStatusCode.InternalServerError, response.StatusCode);
         }
 
         #endregion
@@ -57,56 +72,30 @@ namespace RecipeWebApp.Tests
         #region Update
 
         [Fact]
-        public async Task Update_ShouldReturnOkIfRecipeExists()
+        public async Task Update_ShouldReturnOkRestulIfThereAreNoExceptions()
         {
             var mockService = new Mock<IRecipeService>();
             mockService.Setup(s => s.UpdateRecipe(It.IsAny<UpdateRecipeCommand>()));
-            var mockLogger = new Mock<ILogger<RecipeApiController>>();
-            var controller = new RecipeApiController(mockService.Object, mockLogger.Object);
+            var controller = new RecipeApiController(mockService.Object);
 
             var result = await controller.Update(1, new EditRecipeBase());
 
             Assert.IsType<OkResult>(result);
         }
 
-        [Fact]
-        public async Task Update_ShouldReturnNotFoundIfRecipeDoesNotExist()
+        [Theory]
+        [InlineData(typeof(RecipeNotFoundException), HttpStatusCode.NotFound)]
+        [InlineData(typeof(RecipeIsDeletedException), HttpStatusCode.BadRequest)]
+        [InlineData(typeof(Exception), HttpStatusCode.InternalServerError)]
+        public async Task Update_ShouldReturnHttpMessageWithStatusCode500IfExceptionOccurs(Type exceptionType, HttpStatusCode statusCode)
         {
-            var mockService = new Mock<IRecipeService>();
-            mockService.Setup(s => s.UpdateRecipe(It.IsAny<UpdateRecipeCommand>())).Throws<RecipeNotFoundException>();
-            var mockLogger = new Mock<ILogger<RecipeApiController>>();
-            var controller = new RecipeApiController(mockService.Object, mockLogger.Object);
+            var exception = (Exception)Activator.CreateInstance(exceptionType)!;
+            _mockService.Setup(m => m.UpdateRecipe(It.IsAny<UpdateRecipeCommand>())).Throws(exception);
 
-            var result = await controller.Update(1, new EditRecipeBase());
+            var response = await _client.PostAsJsonAsync("/api/recipe/1", new EditRecipeBase { Name = "new name" });
 
-            Assert.IsType<NotFoundObjectResult>(result);
-        }
-
-        [Fact]
-        public async Task Update_ShouldReturnBadRequestIfRecipeIsDeleted()
-        {
-            var mockService = new Mock<IRecipeService>();
-            mockService.Setup(s => s.UpdateRecipe(It.IsAny<UpdateRecipeCommand>())).Throws<RecipeIsDeletedException>();
-            var mockLogger = new Mock<ILogger<RecipeApiController>>();
-            var controller = new RecipeApiController(mockService.Object, mockLogger.Object);
-
-            var result = await controller.Update(1, new EditRecipeBase());
-
-            Assert.IsType<BadRequestObjectResult>(result);
-        }
-
-        [Fact]
-        public async Task Update_ShouldReturnObjectResult500IfExceptionOccurs()
-        {
-            var mockService = new Mock<IRecipeService>();
-            mockService.Setup(s => s.UpdateRecipe(It.IsAny<UpdateRecipeCommand>())).Throws<Exception>();
-            var mockLogger = new Mock<ILogger<RecipeApiController>>();
-            var controller = new RecipeApiController(mockService.Object, mockLogger.Object);
-
-            var result = await controller.Update(1, new EditRecipeBase());
-
-            Assert.IsType<ObjectResult>(result);
-            Assert.Equal(500, ((ObjectResult)result).StatusCode);
+            Assert.IsType<HttpResponseMessage>(response);
+            Assert.Equal(statusCode, response.StatusCode);
         }
 
         #endregion
