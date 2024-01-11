@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk.Web">
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
@@ -8,33 +8,10 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Include="wwwroot\lib\bootstrap\css\bootstrap-grid.css" />
-    <None Include="wwwroot\lib\bootstrap\css\bootstrap-grid.css.map" />
-    <None Include="wwwroot\lib\bootstrap\css\bootstrap-grid.min.css" />
-    <None Include="wwwroot\lib\bootstrap\css\bootstrap-grid.min.css.map" />
-    <None Include="wwwroot\lib\bootstrap\css\bootstrap-grid.rtl.css" />
-    <None Include="wwwroot\lib\bootstrap\css\bootstrap-reboot.css" />
-    <None Include="wwwroot\lib\bootstrap\css\bootstrap-reboot.css.map" />
-    <None Include="wwwroot\lib\bootstrap\css\bootstrap-reboot.min.css" />
-    <None Include="wwwroot\lib\bootstrap\css\bootstrap-reboot.min.css.map" />
-    <None Include="wwwroot\lib\bootstrap\css\bootstrap.css" />
-    <None Include="wwwroot\lib\bootstrap\css\bootstrap.css.map" />
-    <None Include="wwwroot\lib\bootstrap\css\bootstrap.min.css" />
-    <None Include="wwwroot\lib\bootstrap\css\bootstrap.min.css.map" />
-    <None Include="wwwroot\lib\bootstrap\js\bootstrap.bundle.js" />
-    <None Include="wwwroot\lib\bootstrap\js\bootstrap.bundle.js.map" />
-    <None Include="wwwroot\lib\bootstrap\js\bootstrap.bundle.min.js" />
-    <None Include="wwwroot\lib\bootstrap\js\bootstrap.bundle.min.js.map" />
-    <None Include="wwwroot\lib\bootstrap\js\bootstrap.js" />
-    <None Include="wwwroot\lib\bootstrap\js\bootstrap.js.map" />
-    <None Include="wwwroot\lib\bootstrap\js\bootstrap.min.js" />
-    <None Include="wwwroot\lib\bootstrap\js\bootstrap.min.js.map" />
-    <None Include="wwwroot\lib\jquery\jquery.js" />
-    <None Include="wwwroot\lib\jquery\jquery.min.js" />
-    <None Include="wwwroot\lib\jquery\jquery.min.map" />
-    <None Include="wwwroot\lib\jquery\jquery.slim.js" />
-    <None Include="wwwroot\lib\jquery\jquery.slim.min.js" />
-    <None Include="wwwroot\lib\jquery\jquery.slim.min.map" />
+    <Compile Remove="wwwroot\lib\**" />
+    <Content Remove="wwwroot\lib\**" />
+    <EmbeddedResource Remove="wwwroot\lib\**" />
+    <None Remove="wwwroot\lib\**" />
   </ItemGroup>
 
   <ItemGroup>
@@ -42,9 +19,14 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
+    <PackageReference Include="Microsoft.Web.LibraryManager.Build" Version="2.1.175" />
     <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="8.0.0" />
     <PackageReference Include="Swashbuckle.AspNetCore.SwaggerGen" Version="6.5.0" />
     <PackageReference Include="Swashbuckle.AspNetCore.SwaggerUI" Version="6.5.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="wwwroot\" />
   </ItemGroup>
 
 </Project>
