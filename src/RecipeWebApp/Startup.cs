@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using RecipeWebApp.Configs;
+using RecipeWebApp.Entities;
 using RecipeWebApp.Infrastructure;
 using RecipeWebApp.Services;
 
@@ -26,6 +27,10 @@ namespace RecipeWebApp
             {
                 options.UseNpgsql(_configuration.GetConnectionString("DefaultConnection"));
             });
+            services.AddDefaultIdentity<ApplicationUser>(options =>
+            {
+                options.SignIn.RequireConfirmedAccount = true;
+            }).AddEntityFrameworkStores<AppDbContext>();
 
             services.AddScoped<IAppDbContext, AppDbContext>();
             services.AddScoped<IRecipeService, RecipeService>();
@@ -49,6 +54,8 @@ namespace RecipeWebApp
             app.UseStaticFiles();
 
             app.UseRouting();
+            app.UseAuthentication();
+
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapRazorPages();
