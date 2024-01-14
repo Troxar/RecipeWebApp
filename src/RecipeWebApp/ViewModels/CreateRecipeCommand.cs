@@ -15,6 +15,7 @@ namespace RecipeWebApp.ViewModels
                 Method = Method,
                 IsVegetarian = IsVegetarian,
                 IsVegan = IsVegan,
+                LastModified = DateTime.UtcNow,
                 Ingredients = Ingredients
                     .Select(i => i.ToIngredient())
                     .ToList()

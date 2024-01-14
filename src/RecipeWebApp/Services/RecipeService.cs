@@ -74,6 +74,7 @@ namespace RecipeWebApp.Services
             recipe.Method = cmd.Method;
             recipe.IsVegetarian = cmd.IsVegetarian;
             recipe.IsVegan = cmd.IsVegan;
+            recipe.LastModified = cmd.LastModified;
         }
 
         public async Task DeleteRecipe(int id)

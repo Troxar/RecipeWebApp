@@ -5,6 +5,7 @@ namespace RecipeWebApp.ViewModels
     public class UpdateRecipeCommand : EditRecipeBase
     {
         public int RecipeId { get; set; }
+        public DateTime LastModified { get; set; } = DateTime.UtcNow;
 
         public UpdateRecipeCommand() { }
 

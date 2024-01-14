@@ -7,6 +7,7 @@ using RecipeWebApp.Controllers;
 using RecipeWebApp.Services;
 using RecipeWebApp.Services.Exceptions;
 using RecipeWebApp.ViewModels;
+using System.Globalization;
 using System.Net;
 
 namespace RecipeWebApp.Tests
@@ -65,6 +66,34 @@ namespace RecipeWebApp.Tests
 
             Assert.IsType<HttpResponseMessage>(response);
             Assert.Equal(HttpStatusCode.InternalServerError, response.StatusCode);
+        }
+
+        [Fact]
+        public async Task Get_ShouldReturnLastModifiedInHeaderIfDateIsSpecified()
+        {
+            var detail = new RecipeDetailViewModel { LastModified = DateTime.UtcNow };
+            _mockService.Setup(m => m.GetRecipe(It.IsAny<int>())).Returns(Task.FromResult<RecipeDetailViewModel?>(detail));
+
+            var response = await _client.GetAsync("/api/recipe/1");
+
+            Assert.IsType<HttpResponseMessage>(response);
+            Assert.True(response.Content.Headers.TryGetValues("Last-Modified", out var values));
+
+            var expected = detail.LastModified.ToString("ddd, dd MMM yyyy HH:mm:ss 'GMT'", CultureInfo.InvariantCulture);
+            var actual = values.First();
+            Assert.Equal(expected, actual);
+        }
+
+        [Fact]
+        public async Task Get_ShouldNotReturnLastModifiedInHeaderIfDateIsNotSpecified()
+        {
+            var detail = new RecipeDetailViewModel();
+            _mockService.Setup(m => m.GetRecipe(It.IsAny<int>())).Returns(Task.FromResult<RecipeDetailViewModel?>(detail));
+
+            var response = await _client.GetAsync("/api/recipe/1");
+
+            Assert.IsType<HttpResponseMessage>(response);
+            Assert.False(response.Content.Headers.TryGetValues("Last-Modified", out var values));
         }
 
         #endregion

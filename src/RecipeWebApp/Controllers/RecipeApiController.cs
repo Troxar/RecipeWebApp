@@ -19,6 +19,7 @@ namespace RecipeWebApp.Controllers
         }
 
         [HttpGet("{id:required}")]
+        [AddLastModifiedHeader]
         public async Task<IActionResult> Get(int id)
         {
             var recipe = await _service.GetRecipe(id);
