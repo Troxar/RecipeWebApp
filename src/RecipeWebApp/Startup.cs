@@ -55,6 +55,7 @@ namespace RecipeWebApp
 
             app.UseRouting();
             app.UseAuthentication();
+            app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>
             {
