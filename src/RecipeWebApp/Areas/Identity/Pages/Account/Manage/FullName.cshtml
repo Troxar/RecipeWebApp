@@ -1,0 +1,26 @@
+﻿@page
+@model FullNameModel
+@{
+    ViewData["Title"] = "Manage Full Name";
+    ViewData["ActivePage"] = ManageNavPages.FullName;
+}
+
+<h4>@ViewData["Title"]</h4>
+<partial name="_StatusMessage" model="Model.StatusMessage" />
+<div class="row">
+    <div class="col-md-6">
+        <form id="email-form" method="post">
+            <div asp-validation-summary="All" class="text-danger"></div>
+            <div class="form-group">
+                <label asp-for="Input.NewFullName"></label>
+                <input asp-for="Input.NewFullName" class="form-control" />
+                <span asp-validation-for="Input.NewFullName" class="text-danger"></span>
+            </div>
+            <button id="change-fullname-button" type="submit" asp-page-handler="Change" class="btn btn-default">Change</button>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
