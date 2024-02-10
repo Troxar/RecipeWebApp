@@ -8,6 +8,7 @@ namespace RecipeWebApp.ViewModels
         public string Name { get; set; }
         public string Method { get; set; }
         public DateTime LastModified { get; set; }
+        public string CreatedById { get; set; }
         public IEnumerable<IngredientItem> Ingredients { get; set; }
 
         public static RecipeDetailViewModel FromRecipe(Recipe recipe)
@@ -18,6 +19,7 @@ namespace RecipeWebApp.ViewModels
                 Name = recipe.Name,
                 Method = recipe.Method,
                 LastModified = recipe.LastModified,
+                CreatedById = recipe.CreatedById,
                 Ingredients = recipe.Ingredients
                     .Select(i => IngredientItem.FromIngredient(i))
             };

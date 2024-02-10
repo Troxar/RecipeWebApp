@@ -1,4 +1,6 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.EntityFrameworkCore;
+using RecipeWebApp.Authorization;
 using RecipeWebApp.Configs;
 using RecipeWebApp.Entities;
 using RecipeWebApp.Infrastructure;
@@ -34,6 +36,13 @@ namespace RecipeWebApp
 
             services.AddScoped<IAppDbContext, AppDbContext>();
             services.AddScoped<IRecipeService, RecipeService>();
+            services.AddScoped<IAuthorizationHandler, IsRecipeOwnerHandler>();
+
+            services.AddAuthorization(options =>
+            {
+                options.AddPolicy("CanManageRecipe", policyBuilder =>
+                    policyBuilder.AddRequirements(new IsRecipeOwnerRequirement()));
+            });
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)

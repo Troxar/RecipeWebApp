@@ -15,13 +15,13 @@ namespace RecipeWebApp.Services
             _context = context;
         }
 
-        public async Task<int> CreateRecipe(CreateRecipeCommand cmd)
+        public async Task<RecipeDetailViewModel> CreateRecipe(CreateRecipeCommand cmd, ApplicationUser user)
         {
-            var recipe = cmd.ToRecipe();
+            var recipe = cmd.ToRecipe(user);
             _context.Recipes.Add(recipe);
             await _context.SaveChangesAsync();
 
-            return recipe.RecipeId;
+            return RecipeDetailViewModel.FromRecipe(recipe);
         }
 
         public async Task<RecipeDetailViewModel?> GetRecipe(int id)

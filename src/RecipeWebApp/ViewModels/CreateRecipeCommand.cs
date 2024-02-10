@@ -6,7 +6,7 @@ namespace RecipeWebApp.ViewModels
     {
         public IList<CreateIngredientCommand> Ingredients { get; set; } = new List<CreateIngredientCommand>();
 
-        public Recipe ToRecipe()
+        public Recipe ToRecipe(ApplicationUser user)
         {
             return new Recipe
             {
@@ -16,6 +16,7 @@ namespace RecipeWebApp.ViewModels
                 IsVegetarian = IsVegetarian,
                 IsVegan = IsVegan,
                 LastModified = DateTime.UtcNow,
+                CreatedById = user.Id,
                 Ingredients = Ingredients
                     .Select(i => i.ToIngredient())
                     .ToList()

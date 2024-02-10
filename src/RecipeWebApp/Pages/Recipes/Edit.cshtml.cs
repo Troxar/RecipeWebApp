@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using RecipeWebApp.Services;
@@ -6,35 +7,54 @@ using RecipeWebApp.ViewModels;
 
 namespace RecipeWebApp.Pages.Recipes
 {
+    [Authorize]
     public class EditModel : PageModel
     {
         private readonly IRecipeService _service;
+        private readonly IAuthorizationService _authService;
         private readonly ILogger<EditModel> _logger;
+
 
         [BindProperty]
         public UpdateRecipeCommand Input { get; set; }
 
-        public EditModel(IRecipeService service, ILogger<EditModel> logger)
+        public EditModel(IRecipeService service,
+            IAuthorizationService authService,
+            ILogger<EditModel> logger)
         {
             _service = service;
+            _authService = authService;
             _logger = logger;
         }
 
         public async Task<IActionResult> OnGetAsync(int id)
         {
+            var recipeDetail = await _service.GetRecipe(id);
+            if (recipeDetail is null)
+            {
+                _logger.LogWarning("Recipe not found: {id}", id);
+                return NotFound();
+            }
+
+            var authResult = await _authService.AuthorizeAsync(User, recipeDetail, "CanManageRecipe");
+            if (!authResult.Succeeded)
+            {
+                return new ForbidResult();
+            }
+
             try
             {
                 Input = await _service.GetRecipeForUpdate(id);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Failed to get recipe: {id}", id);
+                _logger.LogError(ex, "Failed to get recipe for update: {id}", id);
                 return RedirectToPage("/Error");
             }
 
             if (Input is null)
             {
-                _logger.LogWarning("Recipe not found: {id}", id);
+                _logger.LogWarning("Recipe for update not found: {id}", id);
                 return NotFound();
             }
 

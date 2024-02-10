@@ -1,10 +1,11 @@
-﻿using RecipeWebApp.ViewModels;
+﻿using RecipeWebApp.Entities;
+using RecipeWebApp.ViewModels;
 
 namespace RecipeWebApp.Services
 {
     public interface IRecipeService
     {
-        Task<int> CreateRecipe(CreateRecipeCommand cmd);
+        Task<RecipeDetailViewModel> CreateRecipe(CreateRecipeCommand cmd, ApplicationUser user);
         Task<IEnumerable<RecipeSummaryViewModel>> GetRecipes();
         Task<RecipeDetailViewModel?> GetRecipe(int id);
         Task<UpdateRecipeCommand?> GetRecipeForUpdate(int id);

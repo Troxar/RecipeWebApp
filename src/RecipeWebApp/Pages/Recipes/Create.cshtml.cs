@@ -1,21 +1,29 @@
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using RecipeWebApp.Entities;
 using RecipeWebApp.Services;
 using RecipeWebApp.ViewModels;
 
 namespace RecipeWebApp.Pages.Recipes
 {
+    [Authorize]
     public class CreateModel : PageModel
     {
         readonly IRecipeService _service;
+        readonly UserManager<ApplicationUser> _userManager;
         readonly ILogger<CreateModel> _logger;
 
         [BindProperty]
         public CreateRecipeCommand Input { get; set; }
 
-        public CreateModel(IRecipeService service, ILogger<CreateModel> logger)
+        public CreateModel(IRecipeService service,
+            UserManager<ApplicationUser> userManager,
+            ILogger<CreateModel> logger)
         {
             _service = service;
+            _userManager = userManager;
             _logger = logger;
         }
 
@@ -26,13 +34,22 @@ namespace RecipeWebApp.Pages.Recipes
 
         public async Task<IActionResult> OnPostAsync()
         {
+            if (!ModelState.IsValid)
+            {
+                return Page();
+            }
+
+            var appUser = await _userManager.GetUserAsync(User);
+            if (appUser is null)
+            {
+                _logger.LogError("Unable to load user {id}", _userManager.GetUserId(User));
+                return NotFound("Unable to load user info");
+            }
+
             try
             {
-                if (ModelState.IsValid)
-                {
-                    var recipe = await _service.CreateRecipe(Input);
-                    return Redirect("/");
-                }
+                var recipe = await _service.CreateRecipe(Input, appUser);
+                return Redirect("/");
             }
             catch (Exception ex)
             {
