@@ -12,6 +12,8 @@ namespace RecipeWebApp
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
                     webBuilder.UseStartup<Startup>();
+                    webBuilder.UseIIS();
+                    webBuilder.UseIISIntegration();
                 });
     }
 }

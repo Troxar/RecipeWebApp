@@ -44,3 +44,5 @@ msbuild.wrn
 
 # js and css libraries
 **/wwwroot/lib/
+**/wwwroot/css/
+**/wwwroot/js/

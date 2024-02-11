@@ -1,0 +1,40 @@
+[
+	{
+		"outputFileName": "wwwroot/css/site.min.css",
+		"inputFiles": [
+			"wwwroot/lib/**/*.min.css"
+		],
+		"minify": {
+			"enabled": false
+		}
+	},
+	{
+		"outputFileName": "wwwroot/css/site.css",
+		"inputFiles": [
+			"wwwroot/lib/**/*.css",
+			"!wwwroot/lib/**/*.min.css"
+		],
+		"minify": {
+			"enabled": false
+		}
+	},
+	{
+		"outputFileName": "wwwroot/js/site.min.js",
+		"inputFiles": [
+			"wwwroot/lib/**/*.min.js"
+		],
+		"minify": {
+			"enabled": false
+		}
+	},
+	{
+		"outputFileName": "wwwroot/js/site.js",
+		"inputFiles": [
+			"wwwroot/lib/**/*.js",
+			"!wwwroot/lib/**/*.min.js"
+		],
+		"minify": {
+			"enabled": false
+		}
+	}
+]
