@@ -5,13 +5,17 @@
 }
 
 <h2>@Model.Recipe.Name</h2>
-<form asp-page-handler="Delete" asp-route-id="@Model.Recipe.Id">
-    <p>
-        <a asp-Page="Edit" asp-route-id="@Model.Recipe.Id" class="btn btn-primary">Edit</a>
-        <button class="btn btn-danger">Delete</button>
-    </p>
-</form>
-<p>@Model.Recipe.Method</p>
+
+@if (Model.CanEditRecipe)
+{
+    <form asp-page-handler="Delete" asp-route-id="@Model.Recipe.Id">
+        <p>
+            <a asp-Page="Edit" asp-route-id="@Model.Recipe.Id" class="btn btn-primary">Edit</a>
+            <button class="btn btn-danger">Delete</button>
+        </p>
+    </form>
+    <p>@Model.Recipe.Method</p>
+}
 
 <dl>
     @foreach (var item in Model.Recipe.Ingredients)

@@ -14,6 +14,7 @@ namespace RecipeWebApp.Pages.Recipes
         private readonly ILogger<ViewModel> _logger;
 
         public RecipeDetailViewModel Recipe { get; set; }
+        public bool CanEditRecipe { get; set; }
 
         public ViewModel(IRecipeService service,
             IAuthorizationService authService,
@@ -41,6 +42,9 @@ namespace RecipeWebApp.Pages.Recipes
                 _logger.LogWarning("Recipe not found: {id}", id);
                 return NotFound();
             }
+
+            var authResult = await _authService.AuthorizeAsync(User, Recipe, "CanManageRecipe");
+            CanEditRecipe = authResult.Succeeded;
 
             return Page();
         }
