@@ -46,13 +46,17 @@ namespace RecipeWebApp.Areas.Identity.Pages.Account.Manage
             var appUser = await _userManager.GetUserAsync(User);
             if (appUser is null)
             {
-                _logger.LogError("Unable to load user {id}", _userManager.GetUserId(User));
+                var userId = _userManager.GetUserId(User);
+                _logger.LogError("Unable to load user: {UserId}", userId);
                 return NotFound("Unable to load user info");
             }
 
-            var claims = await _userManager.GetClaimsAsync(appUser);
-            var claim = claims.FirstOrDefault(c => c.Type == "FullName");
+            _logger.LogInformation("User loaded: {UserId}", appUser.Id);
 
+            var claims = await _userManager.GetClaimsAsync(appUser);
+            _logger.LogInformation("User claims loaded: {UserId}", appUser.Id);
+
+            var claim = claims.FirstOrDefault(c => c.Type == "FullName");
             FullName = claim is null ? string.Empty : claim.Value;
 
             Input = new InputModel
@@ -65,47 +69,55 @@ namespace RecipeWebApp.Areas.Identity.Pages.Account.Manage
 
         public async Task<IActionResult> OnPostChangeAsync()
         {
-            if (ModelState.IsValid)
+            if (!ModelState.IsValid)
             {
-                try
-                {
-                    await ChangeFullNameClaim();
-                    StatusMessage = "Your full name has been changed";
-                }
-                catch (ApplicationException ex)
-                {
-                    _logger.LogWarning(ex, "Error changing FullName");
-                    StatusMessage = "Error changing FullName";
-                }
+                return Page();
             }
 
-            return Page();
+            var appUser = await _userManager.GetUserAsync(User);
+            if (appUser is null)
+            {
+                var userId = _userManager.GetUserId(User);
+                _logger.LogError("Unable to load user: {UserId}", userId);
+                StatusMessage = "Error changing FullName";
+                return Page();
+            }
+
+            try
+            {
+                await ChangeFullNameClaim(appUser);
+
+                _logger.LogInformation("User's full name changed: {UserId}", appUser.Id);
+                StatusMessage = "Your full name has been changed";
+                return Page();
+            }
+            catch (ApplicationException ex)
+            {
+                _logger.LogWarning(ex, "Failed to change user's full name: {UserId}", appUser.Id);
+                StatusMessage = "Error changing FullName";
+                return Page();
+            }
         }
 
-        private async Task ChangeFullNameClaim()
+        private async Task ChangeFullNameClaim(ApplicationUser appUser)
         {
             if (Input.NewFullName == FullName)
             {
                 return;
             }
 
-            var appUser = await _userManager.GetUserAsync(User);
-            if (appUser is null)
-            {
-                throw new ApplicationException($"Unable to load user {_userManager.GetUserId(User)}");
-            }
-
             var identity = HttpContext.User.Identity as ClaimsIdentity;
             var claim = identity?.FindFirst("FullName");
             if (claim is null)
             {
-                throw new ApplicationException($"FullName claim of user {appUser.Id} not found");
+                throw new ApplicationException($"User's FullName claim not found. User: {appUser.Id}");
             }
 
             var result = await _userManager.ReplaceClaimAsync(appUser, claim, new Claim("FullName", Input.NewFullName));
             if (!result.Succeeded)
             {
-                throw new ApplicationException($"Unable to change FullName claim of user {appUser.Id}");
+                var errors = string.Join(", ", result.Errors.Select(e => e.Description));
+                throw new ApplicationException($"Errors occurred while replacing FullName claim. User: {appUser.Id}. Errors: {errors}");
             }
 
             await _signInManager.RefreshSignInAsync(appUser);

@@ -42,22 +42,22 @@ namespace RecipeWebApp.Pages.Recipes
             var appUser = await _userManager.GetUserAsync(User);
             if (appUser is null)
             {
-                _logger.LogError("Unable to load user {id}", _userManager.GetUserId(User));
+                _logger.LogWarning("Unable to load user: {UserId}", _userManager.GetUserId(User));
                 return NotFound("Unable to load user info");
             }
 
             try
             {
                 var recipe = await _service.CreateRecipe(Input, appUser);
+                _logger.LogInformation("Recipe created: {RecipeId}", recipe.Id);
                 return Redirect("/");
             }
             catch (Exception ex)
             {
                 ModelState.AddModelError(string.Empty, "Failed to save");
                 _logger.LogError(ex, "Failed to save recipe");
+                return Page();
             }
-
-            return Page();
         }
     }
 }

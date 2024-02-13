@@ -38,7 +38,8 @@ namespace RecipeWebApp.Tests
         {
             var mockService = new Mock<IRecipeService>();
             mockService.Setup(s => s.GetRecipe(It.IsAny<int>())).ReturnsAsync(new RecipeDetailViewModel());
-            var controller = new RecipeApiController(mockService.Object);
+            var logger = Mock.Of<ILogger<RecipeApiController>>();
+            var controller = new RecipeApiController(mockService.Object, logger);
 
             var result = await controller.Get(1);
 
@@ -50,7 +51,8 @@ namespace RecipeWebApp.Tests
         {
             var mockService = new Mock<IRecipeService>();
             mockService.Setup(s => s.GetRecipe(It.IsAny<int>())).ReturnsAsync((RecipeDetailViewModel?)null);
-            var controller = new RecipeApiController(mockService.Object);
+            var logger = Mock.Of<ILogger<RecipeApiController>>();
+            var controller = new RecipeApiController(mockService.Object, logger);
 
             var result = await controller.Get(1);
 
@@ -105,7 +107,8 @@ namespace RecipeWebApp.Tests
         {
             var mockService = new Mock<IRecipeService>();
             mockService.Setup(s => s.UpdateRecipe(It.IsAny<UpdateRecipeCommand>()));
-            var controller = new RecipeApiController(mockService.Object);
+            var logger = Mock.Of<ILogger<RecipeApiController>>();
+            var controller = new RecipeApiController(mockService.Object, logger);
 
             var result = await controller.Update(1, new EditRecipeBase());
 
@@ -114,7 +117,7 @@ namespace RecipeWebApp.Tests
 
         [Theory]
         [InlineData(typeof(RecipeNotFoundException), HttpStatusCode.NotFound)]
-        [InlineData(typeof(RecipeIsDeletedException), HttpStatusCode.BadRequest)]
+        [InlineData(typeof(RecipeIsDeletedException), HttpStatusCode.Gone)]
         [InlineData(typeof(Exception), HttpStatusCode.InternalServerError)]
         public async Task Update_ShouldReturnHttpMessageWithStatusCode500IfExceptionOccurs(Type exceptionType, HttpStatusCode statusCode)
         {

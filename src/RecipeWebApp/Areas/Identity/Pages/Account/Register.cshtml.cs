@@ -86,7 +86,7 @@ namespace RecipeWebApp.Areas.Identity.Pages.Account
                     var claimResult = await _userManager.AddClaimAsync(user, claim);
                     if (!claimResult.Succeeded)
                     {
-                        _logger.LogWarning("Error adding FullName claim to user {id}", user.Id);
+                        _logger.LogWarning("Error adding FullName claim to user {UserId}", user.Id);
                     }
 
                     var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
