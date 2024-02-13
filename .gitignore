@@ -46,3 +46,6 @@ msbuild.wrn
 **/wwwroot/lib/
 **/wwwroot/css/
 **/wwwroot/js/
+
+# logs
+**/Logs/
