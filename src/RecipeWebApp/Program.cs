@@ -41,17 +41,36 @@ namespace RecipeWebApp
                 .Enrich.FromLogContext()
                 .WriteTo.Console();
 
-            var loggingOptions = context.Configuration
-                .GetSection("FileLogging").Get<FileLoggingOptions>();
+            ConfigureFileLogging(context.Configuration, configuration);
+            ConfigureSeqLogging(context.Configuration, configuration);
+        }
 
-            if (loggingOptions?.Enable == true)
+        private static void ConfigureFileLogging(IConfiguration config, LoggerConfiguration loggerConfig)
+        {
+            var fileLoggingOptions = config.GetSection("FileLogging").Get<FileLoggingOptions>();
+
+            if (fileLoggingOptions?.Enable == true)
             {
-                configuration.WriteTo.File(
-                    path: loggingOptions.Path,
-                    rollingInterval: loggingOptions.RollingInterval,
-                    outputTemplate: loggingOptions.OutputTemplate,
-                    fileSizeLimitBytes: loggingOptions.FileSizeLimitBytes,
-                    retainedFileCountLimit: loggingOptions.RetainedFileCountLimit
+                loggerConfig.WriteTo.File(
+                    path: fileLoggingOptions.Path,
+                    rollingInterval: fileLoggingOptions.RollingInterval,
+                    outputTemplate: fileLoggingOptions.OutputTemplate,
+                    fileSizeLimitBytes: fileLoggingOptions.FileSizeLimitBytes,
+                    retainedFileCountLimit: fileLoggingOptions.RetainedFileCountLimit
+                );
+            }
+        }
+
+        private static void ConfigureSeqLogging(IConfiguration config, LoggerConfiguration loggerConfig)
+        {
+            var seqLoggingOptions = config.GetSection("SeqLogging").Get<SeqLoggingOptions>();
+
+            if (seqLoggingOptions?.Enable == true)
+            {
+                loggerConfig.WriteTo.Seq(
+                    serverUrl: seqLoggingOptions.ServerUrl,
+                    apiKey: seqLoggingOptions.ApiKey,
+                    restrictedToMinimumLevel: seqLoggingOptions.MinimumLevel
                 );
             }
         }
