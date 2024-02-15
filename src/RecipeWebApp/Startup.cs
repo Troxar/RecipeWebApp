@@ -4,6 +4,7 @@ using RecipeWebApp.Authorization;
 using RecipeWebApp.Configs;
 using RecipeWebApp.Entities;
 using RecipeWebApp.Infrastructure;
+using RecipeWebApp.Middleware;
 using RecipeWebApp.Services;
 
 namespace RecipeWebApp
@@ -61,6 +62,8 @@ namespace RecipeWebApp
 
             app.UseHttpsRedirection();
             app.UseStaticFiles();
+
+            app.UseSecurityHeaders();
 
             app.UseRouting();
             app.UseAuthentication();
