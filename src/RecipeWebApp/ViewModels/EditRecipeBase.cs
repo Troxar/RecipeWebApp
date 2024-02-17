@@ -1,8 +1,10 @@
-﻿using System.ComponentModel;
+﻿using RecipeWebApp.ViewModels.Validation;
+using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 
 namespace RecipeWebApp.ViewModels
 {
+    [TimeToCookRequired]
     public class EditRecipeBase
     {
         [Required, StringLength(100)]
