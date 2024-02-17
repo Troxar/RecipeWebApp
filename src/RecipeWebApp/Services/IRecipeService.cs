@@ -11,5 +11,6 @@ namespace RecipeWebApp.Services
         Task<UpdateRecipeCommand?> GetRecipeForUpdate(int id);
         Task UpdateRecipe(UpdateRecipeCommand cmd);
         Task DeleteRecipe(int id);
+        Task<IEnumerable<RecipeSummaryViewModel>> GetUserRecipes(string userId, int count);
     }
 }

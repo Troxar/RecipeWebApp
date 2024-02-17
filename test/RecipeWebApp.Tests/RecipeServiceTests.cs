@@ -407,5 +407,144 @@ namespace RecipeWebApp.Tests
         }
 
         #endregion
+
+        #region GetUserRecipes
+
+        [Fact]
+        public async Task GetUserRecipes_ShouldNotReturnRecipesIfThereAreNoOnesForSpecifiedUser()
+        {
+            var recipes = new List<Recipe>
+            {
+                new Recipe { RecipeId = 1, CreatedById = "1" },
+                new Recipe { RecipeId = 2, CreatedById = "3" }
+            };
+            var mockDbContext = new Mock<IAppDbContext>();
+            mockDbContext.Setup(c => c.Recipes).ReturnsDbSet(recipes);
+
+            var userId = "2";
+            var count = 4;
+            var service = new RecipeService(mockDbContext.Object);
+            var result = await service.GetUserRecipes(userId, count);
+
+            Assert.NotNull(result);
+            Assert.Empty(result);
+        }
+
+        [Fact]
+        public async Task GetUserRecipes_ShouldReturnRecipesOnlyForSpecifiedUser()
+        {
+            var recipes = new List<Recipe>
+            {
+                new Recipe { RecipeId = 1, CreatedById = "1" },
+                new Recipe { RecipeId = 2, CreatedById = "3" },
+                new Recipe { RecipeId = 3, CreatedById = "1" }
+            };
+            var mockDbContext = new Mock<IAppDbContext>();
+            mockDbContext.Setup(c => c.Recipes).ReturnsDbSet(recipes);
+
+            var userId = "1";
+            var count = 4;
+            var expected = recipes
+                .Where(r => r.CreatedById == userId)
+                .ToArray();
+
+            var service = new RecipeService(mockDbContext.Object);
+            var result = await service.GetUserRecipes(userId, count);
+
+            Assert.NotNull(result);
+            Assert.Equal(expected.Length, result.Count());
+
+            foreach (var recipe in expected)
+            {
+                Assert.Contains(result, r => r.Id == recipe.RecipeId);
+            }
+        }
+
+        [Fact]
+        public async Task GetUserRecipes_ShouldReturnOnlyNotDeletedRecipes()
+        {
+            var recipes = new List<Recipe>
+            {
+                new Recipe { RecipeId = 1, CreatedById = "1", IsDeleted = false },
+                new Recipe { RecipeId = 2, CreatedById = "1", IsDeleted = true },
+                new Recipe { RecipeId = 3, CreatedById = "1", IsDeleted = false }
+            };
+            var mockDbContext = new Mock<IAppDbContext>();
+            mockDbContext.Setup(c => c.Recipes).ReturnsDbSet(recipes);
+
+            var userId = "1";
+            var count = 4;
+            var expected = recipes
+                .Where(r => !r.IsDeleted)
+                .ToArray();
+
+            var service = new RecipeService(mockDbContext.Object);
+            var result = await service.GetUserRecipes(userId, count);
+
+            Assert.NotNull(result);
+            Assert.Equal(expected.Length, result.Count());
+
+            foreach (var recipe in expected)
+            {
+                Assert.Contains(result, r => r.Id == recipe.RecipeId);
+            }
+        }
+
+        [Fact]
+        public async Task GetUserRecipes_ShouldReturnRecipesInDescendingOrderOfLastModified()
+        {
+            var recipes = new List<Recipe>
+            {
+                new Recipe { RecipeId = 1, CreatedById = "1", LastModified = new DateTime(2021, 1, 1) },
+                new Recipe { RecipeId = 2, CreatedById = "1", LastModified = new DateTime(2022, 1, 1) },
+                new Recipe { RecipeId = 3, CreatedById = "1", LastModified = new DateTime(2020, 1, 1) },
+            };
+            var mockDbContext = new Mock<IAppDbContext>();
+            mockDbContext.Setup(c => c.Recipes).ReturnsDbSet(recipes);
+
+            var userId = "1";
+            var count = 4;
+            var expected = recipes
+                .OrderByDescending(r => r.LastModified)
+                .ToArray();
+
+            var service = new RecipeService(mockDbContext.Object);
+            var result = await service.GetUserRecipes(userId, count);
+
+            Assert.NotNull(result);
+            Assert.Equal(expected.Length, result.Count());
+
+            foreach (var recipe in expected)
+            {
+                Assert.Contains(result, r => r.Id == recipe.RecipeId);
+            }
+        }
+
+        [Theory]
+        [InlineData("1", 2, 2)]
+        [InlineData("2", 2, 2)]
+        [InlineData("3", 2, 1)]
+        public async Task GetUserRecipes_ShouldReturnNoMoreRecipesThanRequested(string userId, int count, int expectedCount)
+        {
+            var recipes = new List<Recipe>
+            {
+                new Recipe { RecipeId = 1, CreatedById = "1", },
+                new Recipe { RecipeId = 2, CreatedById = "1", },
+                new Recipe { RecipeId = 3, CreatedById = "1", },
+                new Recipe { RecipeId = 4, CreatedById = "2", },
+                new Recipe { RecipeId = 5, CreatedById = "2", },
+                new Recipe { RecipeId = 7, CreatedById = "3", },
+            };
+            var mockDbContext = new Mock<IAppDbContext>();
+            mockDbContext.Setup(c => c.Recipes).ReturnsDbSet(recipes);
+
+            var service = new RecipeService(mockDbContext.Object);
+            var result = await service.GetUserRecipes(userId, count);
+
+            Assert.NotNull(result);
+            Assert.Equal(expectedCount, result.Count());
+        }
+
+        #endregion
     }
 }

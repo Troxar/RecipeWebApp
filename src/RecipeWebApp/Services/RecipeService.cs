@@ -88,5 +88,15 @@ namespace RecipeWebApp.Services
             recipe.IsDeleted = true;
             await _context.SaveChangesAsync();
         }
+
+        public async Task<IEnumerable<RecipeSummaryViewModel>> GetUserRecipes(string userId, int count)
+        {
+            return await _context.Recipes
+                .Where(r => r.CreatedById == userId && !r.IsDeleted)
+                .OrderByDescending(r => r.LastModified)
+                .Take(count)
+                .Select(r => RecipeSummaryViewModel.FromRecipe(r))
+                .ToListAsync();
+        }
     }
 }

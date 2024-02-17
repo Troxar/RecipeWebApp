@@ -34,8 +34,13 @@
     </header>
 
     <div class="container">
-        <main role="main" class="pb-3">
-            @RenderBody()
+        <main role="main" class="pb-3 row">
+            <div class="col-8">
+                @RenderBody()
+            </div>
+            <div class="col-4">
+                <vc:user-last-recipes number-of-recipes="4" />
+            </div>
         </main>
     </div>
 
